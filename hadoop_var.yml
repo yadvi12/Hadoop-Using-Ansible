@@ -1,0 +1,7 @@
+hadoop_location: "/root/hadoop-1.2.1-1.x86_64.rpm"
+jdk_location: "/root/jdk-8u171-linux-x64.rpm"
+jdk_software: "jdk-8u171-linux-x64.rpm"
+hadoop_software: "hadoop-1.2.1-1.x86_64.rpm"
+namenode_path: "/nn"
+namenode_ip: "192.168.43.4"
+datanode_path: "/dn"

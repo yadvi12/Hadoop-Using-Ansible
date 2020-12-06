@@ -1,0 +1,50 @@
+- hosts: namenode
+  vars_files:
+          - hadoop_var.yml
+  tasks:
+  - name: "copying jdk software to namenode"
+    copy:
+        src: "{{ jdk_location }}"
+        dest: "/root"
+  - name: "copying hadoop software to namenode"
+    copy:
+        src: "{{ hadoop_location }}"
+        dest: "/root"
+  - name: "Installing jdk software on namenode"
+    yum:
+         name: "{{ jdk_location }}"
+         state: present
+         disable_gpg_check: yes
+    become: true  
+    register: java
+
+  - name: "Installing hadoop software on namenode"
+    shell: "rpm -ivh {{ hadoop_software }} --force"
+  - name: "creating namenode file"
+    file: 
+        state: directory
+        path: "{{ namenode_path }}"
+  - name: "configuring hdfs-site.xml file in namenode"
+    template:
+        dest: "/etc/hadoop/hdfs-site.xml"
+        src: "hdfs_master.xml"
+  - name: "configuring core-site.xml file in namenode"
+    template:
+        dest: "/etc/hadoop/core-site.xml"
+        src: "hdfs_master_core.xml"
+  - name: "Disabling Firewall"
+    service:
+        name: "firewalld"
+        state: stopped
+        enabled: False
+  - name: "Disable SELinux"
+    ansible.posix.selinux:
+        state: disabled
+  - name: "Formating the namenode"
+    shell: "echo Y | hadoop namenode -format"
+    become: true
+  - name: "stop hadoop namenode service"
+    shell: "hadoop-daemon.sh stop namenode"
+  - name: "start hadoop namenode service"
+    shell: "hadoop-daemon.sh start namenode"
+    

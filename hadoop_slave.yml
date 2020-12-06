@@ -1,0 +1,46 @@
+- hosts: datanode
+  vars_files:
+          - hadoop_var.yml
+  tasks:
+  - name: "copying jdk software to datanode"
+    copy:
+        src: "{{ jdk_location }}"
+        dest: "/root"
+  - name: "copying hadoop software to datanode"
+    copy:
+        src: "{{ hadoop_location }}"
+        dest: "/root"
+  - name: "Installing jdk software on datanode"
+    yum:
+         name: "{{ jdk_location }}"
+         state: present
+         disable_gpg_check: yes
+    become: true
+    register: java
+
+  - name: "Installing hadoop software on datanode"
+    shell: "rpm -ivh {{ hadoop_software }} --force"
+  - name: "creating datanode file"
+    file:
+        state: directory
+        path: "{{ datanode_path }}"
+  - name: "Configuring hdfs-site.xml file in datanode"
+    template:
+        dest: "/etc/hadoop/hdfs-site.xml"
+        src: "hdfs_slave.xml"
+  - name: "Configuring core-site.xml file in datanode"
+    template:
+        dest: "/etc/hadoop/core-site.xml"
+        src: "hdfs_master_core.xml"
+  - name: "Disabling Firewall"
+    service:
+        name: "firewalld"
+        state: stopped
+        enabled: False
+  - name: "Disable SELinux"
+    ansible.posix.selinux:
+        state: disabled
+  - name: "stop hadoop datanode service"
+    shell: "hadoop-daemon.sh stop datanode"
+  - name: "start hadoop datanode service"
+    shell: "hadoop-daemon.sh start datanode"
