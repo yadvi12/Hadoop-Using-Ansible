@@ -3,7 +3,7 @@
 ### Configuration of hadoop cluster (Master and slaves) using ansible automation. 
 
 
-## How to get started?
+### How to get started?
 
 - Clone the repository.
 
